@@ -18,14 +18,13 @@
 #include <stdio.h>
 #include "zlib.h"
 
-#ifndef __GO32__
-extern void exit  OF((int));
-#endif
-extern int unlink OF((const char *));
-
 #ifdef STDC
 #  include <string.h>
+#  include <stdlib.h>
+#else
+   extern void exit  OF((int));
 #endif
+extern int unlink OF((const char *));
 
 #if defined(MSDOS) || defined(OS2) || defined(WIN32)
 #  include <fcntl.h>

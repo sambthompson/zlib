@@ -6,6 +6,13 @@
 #include "zutil.h"
 #include "inftrees.h"
 
+char inflate_copyright[] = " inflate 1.0 Copyright 1995 Mark Adler ";
+/*
+  If you use the zlib library in a product, an acknowledgment is welcome
+  in the documentation of your product. If for some reason you cannot
+  include such an acknowledgment, I would appreciate that you keep this
+  copyright string in the executable of your product.
+ */
 struct internal_state  {int dummy;}; /* for buggy compilers */
 
 /* simplify the use of the inflate_huft type with some defines */
@@ -29,10 +36,6 @@ local voidpf falloc OF((
     voidpf,             /* opaque pointer (not used) */
     uInt,               /* number of items */
     uInt));             /* size of item */
-
-local void ffree OF((
-    voidpf q,            /* opaque pointer (not used) */
-    voidpf p));          /* what to free (not used) */
 
 /* Tables for deflate from PKZIP's appnote.txt. */
 local uInt cplens[] = { /* Copy lengths for literal codes 257..285 */
@@ -366,10 +369,8 @@ z_stream *z;            /* for zfree function */
 
 
 /* build fixed tables only once--keep them here */
-local int fixed_lock = 0;
 local int fixed_built = 0;
 #define FIXEDH 530      /* number of hufts used by fixed tables */
-local uInt fixed_left = FIXEDH;
 local inflate_huft fixed_mem[FIXEDH];
 local uInt fixed_bl;
 local uInt fixed_bd;
@@ -378,24 +379,14 @@ local inflate_huft *fixed_td;
 
 
 local voidpf falloc(q, n, s)
-voidpf q;        /* opaque pointer (not used) */
+voidpf q;       /* opaque pointer */
 uInt n;         /* number of items */
 uInt s;         /* size of item */
 {
-  Assert(s == sizeof(inflate_huft) && n <= fixed_left,
+  Assert(s == sizeof(inflate_huft) && n <= *(intf *)q,
          "inflate_trees falloc overflow");
-  if (q) s++; /* to make some compilers happy */
-  fixed_left -= n;
-  return (voidpf)(fixed_mem + fixed_left);
-}
-
-
-local void ffree(q, p)
-voidpf q;
-voidpf p;
-{
-  Assert(0, "inflate_trees ffree called!");
-  if (q) q = p; /* to make some compilers happy */
+  *(intf *)q -= n;
+  return (voidpf)(fixed_mem + *(intf *)q);
 }
 
 
@@ -405,19 +396,18 @@ uIntf *bd;               /* distance desired/actual bit depth */
 inflate_huft * FAR *tl;  /* literal/length tree result */
 inflate_huft * FAR *td;  /* distance tree result */
 {
-  /* build fixed tables if not built already--lock out other instances */
-  while (++fixed_lock > 1)
-    fixed_lock--;
+  /* build fixed tables if not already (multiple overlapped executions ok) */
   if (!fixed_built)
   {
     int k;              /* temporary variable */
     unsigned c[288];    /* length list for huft_build */
     z_stream z;         /* for falloc function */
+    int f = FIXEDH;     /* number of hufts left in fixed_mem */
 
     /* set up fake z_stream for memory routines */
     z.zalloc = falloc;
-    z.zfree = ffree;
-    z.opaque = Z_NULL;
+    z.zfree = Z_NULL;
+    z.opaque = (voidpf)&f;
 
     /* literal table */
     for (k = 0; k < 144; k++)
@@ -438,9 +428,9 @@ inflate_huft * FAR *td;  /* distance tree result */
     huft_build(c, 30, 0, cpdist, cpdext, &fixed_td, &fixed_bd, &z);
 
     /* done */
+    Assert(f == 0, "invalid build of fixed tables");
     fixed_built = 1;
   }
-  fixed_lock--;
   *bl = fixed_bl;
   *bd = fixed_bd;
   *tl = fixed_tl;
@@ -456,10 +446,19 @@ z_stream *z;            /* for zfree function */
    list of the tables it made, with the links in a dummy first entry of
    each table. */
 {
-  register inflate_huft *p, *q;
+  register inflate_huft *p, *q, *r;
 
+  /* Reverse linked list */
+  p = Z_NULL;
+  q = t;
+  while (q != Z_NULL)
+  {
+    r = (q - 1)->next;
+    (q - 1)->next = p;
+    p = q;
+    q = r;
+  }
   /* Go through linked list, freeing from the malloced (t[-1]) address. */
-  p = t;
   while (p != Z_NULL)
   {
     q = (--p)->next;

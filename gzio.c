@@ -83,7 +83,7 @@ local int destroy (s)
 
 /* ===========================================================================
      Opens a gzip (.gz) file for reading or writing. The mode parameter
-   is as in fopen ("rb" or "wb"). The file is given either by file descritor
+   is as in fopen ("rb" or "wb"). The file is given either by file descriptor
    or path name (if fd == -1).
      gz_open return NULL if the file could not be opened or if there was
    insufficient memory to allocate the (de)compression state; errno
@@ -104,6 +104,7 @@ local gzFile gz_open (path, mode, fd)
 
     s->stream.zalloc = (alloc_func)0;
     s->stream.zfree = (free_func)0;
+    s->stream.opaque = (voidpf)0;
     s->stream.next_in = s->inbuf = Z_NULL;
     s->stream.next_out = s->outbuf = Z_NULL;
     s->stream.avail_in = s->stream.avail_out = 0;
@@ -130,7 +131,7 @@ local gzFile gz_open (path, mode, fd)
     
     if (s->mode == 'w') {
         err = deflateInit2(&(s->stream), level,
-                           DEFLATED, -MAX_WBITS, DEF_MEM_LEVEL, 0);
+                           Z_DEFLATED, -MAX_WBITS, DEF_MEM_LEVEL, 0);
         /* windowBits is passed < 0 to suppress zlib header */
 
         s->stream.next_out = s->outbuf = (Byte*)ALLOC(Z_BUFSIZE);
@@ -149,7 +150,7 @@ local gzFile gz_open (path, mode, fd)
     s->stream.avail_out = Z_BUFSIZE;
 
     errno = 0;
-    s->file = fd < 0 ? FOPEN(path, mode) : fdopen(fd, mode);
+    s->file = fd < 0 ? FOPEN(path, mode) : (FILE*)fdopen(fd, mode);
 
     if (s->file == NULL) {
         return destroy(s), (gzFile)Z_NULL;
@@ -158,7 +159,7 @@ local gzFile gz_open (path, mode, fd)
         /* Write a very simple .gz header:
          */
         fprintf(s->file, "%c%c%c%c%c%c%c%c%c%c", GZ_MAGIC_1, GZ_MAGIC_2,
-               DEFLATED, 0 /*flags*/, 0,0,0,0 /*time*/, 0 /*xflags*/, OS_CODE);
+             Z_DEFLATED, 0 /*flags*/, 0,0,0,0 /*time*/, 0 /*xflags*/, OS_CODE);
     } else {
         /* Check and skip the header:
          */
@@ -179,7 +180,7 @@ local gzFile gz_open (path, mode, fd)
         s->stream.avail_in = 0;
         fscanf(s->file,"%c%c%4c%c%c", &method, &flags, time, &xflags, &osCode);
 
-        if (method != DEFLATED || feof(s->file) || (flags & RESERVED) != 0) {
+        if (method != Z_DEFLATED || feof(s->file) || (flags & RESERVED) != 0) {
             s->z_err = Z_DATA_ERROR;
             return (gzFile)s;
         }

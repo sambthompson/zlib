@@ -39,6 +39,7 @@ int compress (dest, destLen, source, sourceLen)
 
     stream.zalloc = (alloc_func)0;
     stream.zfree = (free_func)0;
+    stream.opaque = (voidpf)0;
 
     err = deflateInit(&stream, Z_DEFAULT_COMPRESSION);
     if (err != Z_OK) return err;

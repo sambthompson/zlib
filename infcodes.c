@@ -202,7 +202,7 @@ int r;
 #else
       f = q - c->sub.copy.dist;
       if ((uInt)(q - s->window) < c->sub.copy.dist)
-        f = s->end - (c->sub.copy.dist - (q - s->window));
+        f = s->end - (c->sub.copy.dist - (uInt)(q - s->window));
 #endif
       while (c->len)
       {

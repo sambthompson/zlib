@@ -15,7 +15,7 @@
 
 #include "zlib.h"
 
-#if defined(MSDOS) || defined(VMS)
+#if defined(MSDOS) || defined(VMS) || defined(CRAY)
 #   include <stddef.h>
 #   include <errno.h>
 #else
@@ -23,6 +23,7 @@
 #endif
 #ifdef STDC
 #  include <string.h>
+#  include <stdlib.h>
 #endif
 
 #ifndef local
@@ -38,12 +39,10 @@ typedef unsigned long  ulg;
 
 extern char *z_errmsg[]; /* indexed by 1-zlib_error */
 
-#define ERR_RETURN(strm,err) return (strm->msg=z_errmsg[1-err], err)
+#define ERR_RETURN(strm,err) return (strm->msg = z_errmsg[1-(err)], (err))
 /* To be used only when the state is known to be valid */
 
         /* common constants */
-
-#define DEFLATED   8
 
 #ifndef DEF_WBITS
 #  define DEF_WBITS MAX_WBITS
@@ -81,7 +80,7 @@ extern char *z_errmsg[]; /* indexed by 1-zlib_error */
 #  define OS_CODE  0x06
 #endif
 
-#ifdef WIN32 /* Windows NT */
+#ifdef WIN32 /* Window 95 & Windows NT */
 #  define OS_CODE  0x0b
 #endif
 

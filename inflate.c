@@ -82,7 +82,12 @@ int w;
   /* initialize state */
   if (z == Z_NULL)
     return Z_STREAM_ERROR;
-  if (z->zalloc == Z_NULL) z->zalloc = zcalloc;
+  z->msg = Z_NULL;
+  if (z->zalloc == Z_NULL)
+  {
+    z->zalloc = zcalloc;
+    z->opaque = (voidpf)0;
+  }
   if (z->zfree == Z_NULL) z->zfree = zcfree;
   if ((z->state = (struct internal_state FAR *)
        ZALLOC(z,1,sizeof(struct internal_state))) == Z_NULL)
@@ -145,7 +150,7 @@ int f;
   {
     case METHOD:
       NEEDBYTE
-      if (((z->state->sub.method = NEXTBYTE) & 0xf) != DEFLATED)
+      if (((z->state->sub.method = NEXTBYTE) & 0xf) != Z_DEFLATED)
       {
         z->state->mode = BAD;
         z->msg = "unknown compression method";

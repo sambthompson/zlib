@@ -1,10 +1,10 @@
 # Makefile for zlib
-# Copyright (C) 1995 Jean-loup Gailly.
+# Copyright (C) 1995-1996 Jean-loup Gailly.
 # For conditions of distribution and use, see copyright notice in zlib.h 
 
 CC=cc
 CFLAGS=-O
-#use -O3 for gcc to take advantage of inlining
+#use -O3 for gcc
 #CFLAGS="-O -DMAX_WBITS=14 -DMAX_MEM_LEVEL=7"
 #CFLAGS=-g -DDEBUG
 LDFLAGS=-L. -lz
@@ -12,6 +12,7 @@ LDFLAGS=-L. -lz
 RANLIB=ranlib
 
 prefix=/usr/local
+exec_prefix = ${prefix}
 
 OBJS = adler32.o compress.o crc32.o gzio.o uncompr.o deflate.o trees.o \
        zutil.o inflate.o infblock.o inftrees.o infcodes.o infutil.o inffast.o
@@ -26,15 +27,17 @@ test: all
 
 install: libz.a
 	-@mkdir $(prefix)/include
-	-@mkdir $(prefix)/lib
+	-@mkdir $(exec_prefix)/lib
 	cp zlib.h zconf.h $(prefix)/include
 	chmod 644 $(prefix)/include/zlib.h $(prefix)/include/zconf.h
-	cp libz.a $(prefix)/lib
-	chmod 644 $(prefix)/lib/libz.a
+	cp libz.a $(exec_prefix)/lib
+	chmod 644 $(exec_prefix)/lib/libz.a
+	-@$(RANLIB) $(prefix)/lib/libz.a
+# This second ranlib is needed on NeXTSTEP which checks file times
 
 libz.a: $(OBJS)
 	ar rc $@ $(OBJS)
-	$(RANLIB) $@
+	-@$(RANLIB) $@
 
 example: example.o libz.a
 	$(CC) $(CFLAGS) -o $@ example.o $(LDFLAGS)
@@ -52,6 +55,9 @@ zip:
 tgz:
 	cd ..; tar cfz zlib/zlib.tgz zlib/README zlib/ChangeLog zlib/Makefile \
 	  zlib/Make????.??? zlib/Makefile.?? zlib/descrip.mms zlib/*.[ch]
+
+TAGS:
+	etags *.[ch]
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 

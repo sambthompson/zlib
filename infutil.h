@@ -70,7 +70,7 @@ struct inflate_blocks_state {
 #define NEEDBITS(j) {while(k<(j)){NEEDBYTE;b|=((uLong)NEXTBYTE)<<k;k+=8;}}
 #define DUMPBITS(j) {b>>=(j);k-=(j);}
 /*   output bytes */
-#define WAVAIL (q<s->read?s->read-q-1:s->end-q)
+#define WAVAIL (uInt)(q<s->read?s->read-q-1:s->end-q)
 #define LOADOUT {q=s->write;m=WAVAIL;}
 #define WRAP {if(q==s->end&&s->read!=s->window){q=s->window;m=WAVAIL;}}
 #define FLUSH {UPDOUT r=inflate_flush(s,z,r); LOADOUT}

@@ -1,11 +1,9 @@
-zlib 0.95 is a beta version of a general purpose compression library.
-This should be the last version before the first official
-version (1.0), so please test it now. (At least compile and run it with
-"make test"). This version has no known bugs.
+zlib 1.0 is a general purpose data compression library.
+All the code is reentrant (thread safe).
 
 The data format used by the zlib library is described in the
-files zlib-3.1.doc, deflate-1.1.doc and gzip-4.1.doc, available
-in ftp.uu.net:/pub/archiving/zip/doc.
+files zlib-3.2.doc, deflate-1.2.doc and gzip-4.2.doc, available
+in ftp://ftp.uu.net/pub/archiving/zip/doc
 
 All functions of the compression library are documented in the file
 zlib.h. A usage example of the library is given in the file example.c
@@ -20,21 +18,42 @@ To install in a different directory, use for example:
   make install prefix=$HOME
 This will install in $HOME/lib instead of /usr/local/lib.
 
-The changes made in version 0.95 are documented in the file ChangeLog.
-The main changes since 0.94 are:
-- fix MSDOS small and medium model (now easier to adapt to any compiler)
-- inlined send_bits
-- fix the final (:-) bug for deflate with flush (output was correct but
-  not completely flushed in rare occasions).
+Questions about zlib should be sent to <zlib@quest.jpl.nasa.gov>.
 
-For MSDOS, the small and medium models have been tested only with Microsoft C.
-(This should now work for Borland C also, but I don't have a recent Borland
-compiler to test with.) The small model was tested with Turbo C but only with
-reduced performance to avoid any far allocation; it was tested with
- -DMAX_WBITS=11 -DMAX_MEM_LEVEL=3
+The changes made in version 1.0 are documented in the file ChangeLog.
+The main changes since 0.95 are:
+- allow compression level 0 (no compression)
+- add deflateParams in zlib.h: allow dynamic change of compression level
+  and compression strategy.
+- test large buffers and deflateParams in example.c
+- declare Z_DEFLATED in zlib.h (possible parameter for deflateInit2)
+- fixes for 64-bit systems (needed for Alpha and Cray)
+- always return Z_BUF_ERROR when deflate() has nothing to do
+- fix some very unlikely race conditions.
+- several minor fixes for better portability
+- free in reverse order of allocation to help memory manager
+
+Notes for some targets:
+
+- For MSDOS, the small and medium models have been tested only with
+  Microsoft C.  (This should work for Borland C also, but I don't have
+  a Borland compiler to test with.) The small model was tested with
+  Turbo C but only with reduced performance to avoid any far
+  allocation; it was tested with -DMAX_WBITS=11 -DMAX_MEM_LEVEL=3
+
+  MS Visual C++1.5 in far model gives:
+     warning C4746: 'z_errmsg' : unsized array treated as '__far'
+     warning C4746: 'inflate_mask' : unsized array treated as  '__far'
+  Ignore those warnings.
+
+- For 64-bit Iris, deflate.c must be compiled without any optimization.
+  With -O, one libpng test fails. The test works in 32 bit mode (with the
+  -32 compiler flag).
 
 
- (C) 1995 Jean-loup Gailly and Mark Adler
+Copyright notice:
+
+ (C) 1995-1996 Jean-loup Gailly and Mark Adler
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages

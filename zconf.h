@@ -15,16 +15,20 @@
   for some forms of corrupted input.
  */
 
-/*
- * Compile with -DMAXSEG_64K if the alloc function cannot allocate more
- * than 64k bytes at a time (needed on systems with 16-bit int).
- */
-#if defined(_GNUC__) && !defined(__32BIT__)
+#if (defined(_WIN32) || defined(__WIN32__)) && !defined(WIN32)
+#  define WIN32
+#endif
+#if (defined(__GNUC__) || defined(WIN32)) && !defined(__32BIT__)
 #  define __32BIT__
 #endif
 #if defined(__MSDOS__) && !defined(MSDOS)
 #  define MSDOS
 #endif
+
+/*
+ * Compile with -DMAXSEG_64K if the alloc function cannot allocate more
+ * than 64k bytes at a time (needed on systems with 16-bit int).
+ */
 #if defined(MSDOS) && !defined(__32BIT__)
 #  define MAXSEG_64K
 #endif
@@ -32,16 +36,15 @@
 #  define UNALIGNED_OK
 #endif
 
-#ifndef STDC
-#  if defined(MSDOS) || defined(__STDC__) || defined(__cplusplus)
-#    define STDC
-#  endif
+#if (defined(MSDOS) || defined(_WINDOWS) || defined(WIN32))  && !defined(STDC)
+#  define STDC
+#endif
+#if (defined(__STDC__) || defined(__cplusplus)) && !defined(STDC)
+#  define STDC
 #endif
 
-#ifndef STDC
-#  ifndef const
-#    define const
-#  endif
+#if !defined(STDC) && !defined(const)
+#  define const
 #endif
 
 #ifdef	__MWERKS__ /* Metrowerks CodeWarrior declares fileno() in unix.h */
@@ -99,7 +102,7 @@
 #  endif
 #endif
 #if defined(__BORLANDC__) && (defined(__SMALL__) || defined(__MEDIUM__))
-#    define FAR __far /* completely untested, just a best guess */
+#    define FAR _far /* completely untested, just a best guess */
 #endif
 #ifndef FAR
 #   define FAR

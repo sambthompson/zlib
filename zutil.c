@@ -11,7 +11,7 @@
 
 struct internal_state      {int dummy;}; /* for buggy compilers */
 
-#ifndef __GO32__
+#ifndef STDC
 extern void exit OF((int));
 #endif
 
@@ -59,7 +59,8 @@ void zmemzero(dest, len)
 }
 #endif
 
-#if defined( __TURBOC__) && !defined(__SMALL__) && !defined(__MEDIUM__)
+#ifdef __TURBOC__
+#if !defined(__SMALL__) && !defined(__MEDIUM__) && !defined(__32BIT__)
 /* Small and medium model are for now limited to near allocation with
  * reduced MAX_WBITS and MAX_MEM_LEVEL
  */
@@ -94,8 +95,14 @@ voidpf zcalloc (voidpf opaque, unsigned items, unsigned size)
     voidpf buf = opaque; /* just to make some compilers happy */
     ulg bsize = (ulg)items*size;
 
-    if (bsize < 65536L) {
+    /* If we allocate less than 65520 bytes, we assume that farmalloc
+     * will return a usable pointer which doesn't have to be normalized.
+     */
+    if (bsize < 65520L) {
         buf = farmalloc(bsize);
+#ifdef DEBUG
+        zmemzero(buf, (uInt)bsize);
+#endif
         if (*(ush*)&buf != 0) return buf;
     } else {
         buf = farmalloc(bsize + 16L);
@@ -107,6 +114,10 @@ voidpf zcalloc (voidpf opaque, unsigned items, unsigned size)
     *((ush*)&buf+1) += ((ush)((uch*)buf-0) + 15) >> 4;
     *(ush*)&buf = 0;
     table[next_ptr++].new_ptr = buf;
+#ifdef DEBUG
+    zmemzero(buf, (uInt)65535);
+    ((uch*)buf)[65535] = 0;
+#endif
     return buf;
 }
 
@@ -131,10 +142,11 @@ void  zcfree (voidpf opaque, voidpf ptr)
     ptr = opaque; /* just to make some compilers happy */
     z_error("zcfree: ptr not found");
 }
+#endif
 #endif /* __TURBOC__ */
 
-#if defined(M_I86SM)||defined(M_I86MM)||defined(M_I86CM)||defined(M_I86LM)
-/* Microsoft C */
+
+#ifdef M_I86 /* Microsoft C */
 
 #  define MY_ZCALLOC
 
@@ -160,7 +172,7 @@ void  zcfree (voidpf opaque, voidpf ptr)
 
 #ifndef MY_ZCALLOC /* Any system without a special alloc function */
 
-#ifndef __GO32__
+#ifndef STDC
 extern voidp  calloc OF((uInt items, uInt size));
 extern void   free   OF((voidpf ptr));
 #endif

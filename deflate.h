@@ -91,6 +91,7 @@ typedef struct internal_state {
     int   noheader;      /* suppress zlib header and adler32 */
     Byte  data_type;     /* UNKNOWN, BINARY or ASCII */
     Byte  method;        /* STORED (for zip only) or DEFLATED */
+    int   last_flush;    /* value of flush param for previous deflate call */
 
                 /* used by deflate.c: */
 
@@ -173,7 +174,7 @@ typedef struct internal_state {
     uInt good_match;
     /* Use a faster search when the previous match is longer than this */
 
-     int nice_match; /* Stop searching when current match exceeds this */
+    int nice_match; /* Stop searching when current match exceeds this */
 
                 /* used by trees.c: */
     /* Didn't use ct_data typedef below to supress compiler warning */
@@ -267,9 +268,9 @@ typedef struct internal_state {
  */
 
         /* in trees.c */
-void ct_init       OF((deflate_state *s));
-int  ct_tally      OF((deflate_state *s, int dist, int lc));
-ulg ct_flush_block OF((deflate_state *s, charf *buf, ulg stored_len, int eof));
-void ct_align      OF((deflate_state *s));
-void ct_stored_block OF((deflate_state *s, charf *buf, ulg stored_len,
-                          int eof));
+void tr_init      OF((deflate_state *s));
+int  tr_tally      OF((deflate_state *s, int dist, int lc));
+ulg tr_flush_block OF((deflate_state *s, charf *buf, ulg stored_len, int eof));
+void tr_align      OF((deflate_state *s));
+void tr_stored_block OF((deflate_state *s, charf *buf, ulg stored_len,
+                         int eof));

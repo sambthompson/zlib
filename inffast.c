@@ -102,7 +102,7 @@ z_stream *z;
             }
             else                        /* else offset after destination */
             {
-              e = d - (q - s->window);  /* bytes from offset to end */
+              e = d - (uInt)(q - s->window); /* bytes from offset to end */
               r = s->end - e;           /* pointer to offset */
               if (c > e)                /* if source crosses, */
               {
