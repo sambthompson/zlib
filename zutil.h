@@ -8,7 +8,7 @@
    subject to change. Applications should only use zlib.h.
  */
 
-/* $Id: zutil.h,v 1.9 1995/05/03 17:27:12 jloup Exp $ */
+/* $Id: zutil.h,v 1.13 1996/01/30 21:59:29 me Exp $ */
 
 #ifndef _Z_UTIL_H
 #define _Z_UTIL_H
@@ -114,6 +114,10 @@ extern const char *z_errmsg[10]; /* indexed by 2-zlib_error */
 
 #ifdef TOPS20
 #  define OS_CODE  0x0a
+#endif
+
+#ifdef _BEOS_
+#  define fdopen(fd,mode) NULL /* No fdopen() */
 #endif
 
         /* Common defaults */

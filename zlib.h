@@ -1,5 +1,5 @@
 /* zlib.h -- interface of the 'zlib' general purpose compression library
-  version 1.0, Jan 27th, 1996.
+  version 1.0.1, May 20th, 1996.
 
   Copyright (C) 1995-1996 Jean-loup Gailly and Mark Adler
 
@@ -32,7 +32,7 @@ extern "C" {
 
 #include "zconf.h"
 
-#define ZLIB_VERSION "1.0"
+#define ZLIB_VERSION "1.0.1"
 
 /* 
      The 'zlib' compression library provides in-memory compression and
@@ -207,7 +207,9 @@ extern int deflate OF((z_stream *strm, int flush));
   more output, and updating avail_in or avail_out accordingly; avail_out
   should never be zero before the call. The application can consume the
   compressed output when it wants, for example when the output buffer is full
-  (avail_out == 0), or after each call of deflate().
+  (avail_out == 0), or after each call of deflate(). If deflate returns Z_OK
+  and with zero avail_out, it must be called again after making room in the
+  output buffer because there might be more output pending.
 
     If the parameter flush is set to Z_PARTIAL_FLUSH, the current compression
   block is terminated and flushed to the output buffer so that the
@@ -294,15 +296,18 @@ extern int inflate OF((z_stream *strm, int flush));
     will resume at this point for the next call of inflate().
 
   - Provide more output starting at next_out and update next_out and avail_out
-    accordingly.  inflate() always provides as much output as possible
-    (until there is no more input data or no more space in the output buffer).
+    accordingly.  inflate() provides as much output as possible, until there
+    is no more input data or no more space in the output buffer (see below
+    about the flush parameter).
 
   Before the call of inflate(), the application should ensure that at least
   one of the actions is possible, by providing more input and/or consuming
   more output, and updating the next_* and avail_* values accordingly.
   The application can consume the uncompressed output when it wants, for
   example when the output buffer is full (avail_out == 0), or after each
-  call of inflate().
+  call of inflate(). If inflate returns Z_OK and with zero avail_out, it
+  must be called again after making room in the output buffer because there
+  might be more output pending.
 
     If the parameter flush is set to Z_PARTIAL_FLUSH, inflate flushes as much
   output as possible to the output buffer. The flushing behavior of inflate is
@@ -484,8 +489,13 @@ extern int deflateParams OF((z_stream *strm, int level, int strategy));
    available so far is compressed with the old level (and may be flushed);
    the new level will take effect only at the next call of deflate().
 
+     Before the call of deflateParams, the stream state must be set as for
+   a call of deflate(), since the currently available input may have to
+   be compressed and flushed. In particular, strm->avail_out must be non-zero.
+
      deflateParams returns Z_OK if success, Z_STREAM_ERROR if the source
-   stream state was inconsistent or if a parameter was invalid.
+   stream state was inconsistent or if a parameter was invalid, Z_BUF_ERROR
+   if strm->avail_out was zero.
 */
 
 /*   
@@ -631,7 +641,7 @@ extern gzFile gzdopen  OF((int fd, const char *mode));
      gzdopen() associates a gzFile with the file descriptor fd.  File
    descriptors are obtained from calls like open, dup, creat, pipe or
    fileno (in the file has been previously opened with fopen).
-   The mode parameter is as in fopen ("rb" or "wb").
+   The mode parameter is as in gzopen.
      The next call of gzclose on the returned gzFile will also close the
    file descriptor fd, just like fclose(fdopen(fd), mode) closes the file
    descriptor fd. If you want to keep fd open, use gzdopen(dup(fd), mode).
@@ -746,7 +756,7 @@ extern int inflateInit2_ OF((z_stream *strm, int  windowBits,
 #define inflateInit2(strm, windowBits) \
         inflateInit2_((strm), (windowBits), ZLIB_VERSION, sizeof(z_stream))
 
-#ifndef _Z_UTIL_H
+#if !defined(_Z_UTIL_H) && !defined(NO_DUMMY_DECL)
     struct internal_state {int dummy;}; /* hack for buggy compilers */
 #endif
 

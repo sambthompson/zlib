@@ -3,7 +3,7 @@
  * For conditions of distribution and use, see copyright notice in zlib.h 
  */
 
-/* $Id: zutil.c,v 1.8 1995/05/03 17:27:12 jloup Exp $ */
+/* $Id: zutil.c,v 1.12 1996/01/30 21:59:29 me Exp $ */
 
 #include <stdio.h>
 
@@ -178,7 +178,7 @@ voidpf zcalloc (opaque, items, size)
     unsigned items;
     unsigned size;
 {
-    if (opaque) opaque = 0; /* to make compiler happy */
+    if (opaque) items += size - size; /* make compiler happy */
     return (voidpf)calloc(items, size);
 }
 
@@ -186,8 +186,8 @@ void  zcfree (opaque, ptr)
     voidpf opaque;
     voidpf ptr;
 {
-    if (opaque) opaque = 0; /* to make compiler happy */
     free(ptr);
+    if (opaque) return; /* make compiler happy */
 }
 
 #endif /* MY_ZCALLOC */

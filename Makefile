@@ -22,7 +22,7 @@ CFLAGS=-O
 LDFLAGS=-L. -lz
 LDSHARED=$(CC)
 
-VER=1.0
+VER=1.0.1
 LIBS=libz.a
 
 AR=ar rc
@@ -37,8 +37,7 @@ OBJS = adler32.o compress.o crc32.o gzio.o uncompr.o deflate.o trees.o \
 
 TEST_OBJS = example.o minigzip.o
 
-DISTFILES = README ChangeLog configure Makefile.in Makefile Makefile.msc \
-	    Makefile.bor Makefile.tc Make_vms.com descrip.mms *.[ch]
+DISTFILES = README INDEX ChangeLog configure Make*[a-z0-9] descrip.mms *.[ch]
 
 all: example minigzip
 
@@ -86,7 +85,7 @@ clean:
 
 zip:
 	mv Makefile Makefile~; cp -p Makefile.in Makefile
-	v=`sed -n -e 's/\./-/' -e '/VERSION "/s/.*"\(.*\)".*/\1/p' < zlib.h`;\
+	v=`sed -n -e 's/\./-/g' -e '/VERSION "/s/.*"\(.*\)".*/\1/p' < zlib.h`;\
 	zip -ul9 zlib-$$v $(DISTFILES)
 	mv Makefile~ Makefile
 

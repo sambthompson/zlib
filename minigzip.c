@@ -13,7 +13,7 @@
  * or in pipe mode.
  */
 
-/* $Id: minigzip.c,v 1.5 1995/05/03 17:27:11 jloup Exp $ */
+/* $Id: minigzip.c,v 1.8 1996/01/30 21:59:23 me Exp $ */
 
 #include <stdio.h>
 #include "zlib.h"
@@ -24,7 +24,7 @@
 #else
    extern void exit  OF((int));
 #endif
-extern int unlink OF((const char *));
+
 
 #if defined(MSDOS) || defined(OS2) || defined(WIN32)
 #  include <fcntl.h>
@@ -35,11 +35,14 @@ extern int unlink OF((const char *));
 #endif
 
 #ifdef VMS
+#  define unlink delete
 #  define GZ_SUFFIX "-gz"
 #else
 #  define GZ_SUFFIX ".gz"
 #endif
 #define SUFFIX_LEN sizeof(GZ_SUFFIX)
+
+extern int unlink OF((const char *));
 
 #define BUFLEN 4096
 #define MAX_NAME_LEN 1024
