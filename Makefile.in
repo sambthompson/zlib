@@ -22,7 +22,7 @@ CFLAGS=-O
 LDFLAGS=-L. -lz
 LDSHARED=$(CC)
 
-VER=1.0.6
+VER=1.0.7
 LIBS=libz.a
 SHAREDLIB=libz.so
 
@@ -40,7 +40,7 @@ OBJS = adler32.o compress.o crc32.o gzio.o uncompr.o deflate.o trees.o \
 TEST_OBJS = example.o minigzip.o
 
 DISTFILES = README INDEX ChangeLog configure Make*[a-z0-9] *.[ch] descrip.mms \
-  algorithm.txt  msdos/Make*[a-z0-9] msdos/zlib.def msdos/zlib.rc \
+  algorithm.txt zlib.3 msdos/Make*[a-z0-9] msdos/zlib.def msdos/zlib.rc \
   nt/Makefile.nt nt/zlib.dnt  contrib/README.contrib contrib/*.txt \
   contrib/asm386/*.asm contrib/asm386/*.c \
   contrib/asm386/*.bat contrib/asm386/*.mak contrib/iostream/*.cpp \

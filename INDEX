@@ -10,6 +10,8 @@ README			guess what
 algorithm.txt		description of the (de)compression algorithm
 configure		configure script for Unix
 descrip.mms		makefile for Vax/VMS
+zlib.3			mini man page for zlib (volunteers to write full
+			man pages from zlib.h welcome. write to jloup@gzip.org)
 
 msdos/Makefile.b32	makefile for Borland C++   32-bit
 msdos/Makefile.bor	makefile for Borland C/C++ 16-bit
@@ -54,6 +56,19 @@ zutil.h
 example.c
 minigzip.c
 
-		contribution by third parties
+		unsupported contribution by third parties
 
-contrib/asm386/*  386 asm code by Gilles Vollant <info@winimage.com>
+contrib/asm386/ by Gilles Vollant <info@winimage.com>
+	386 asm code replacing longest_match().
+
+contrib/iostream/ by Kevin Ruland <kevin@rodin.wustl.edu>
+        A C++ I/O streams interface to the zlib gz* functions
+
+contrib/iostream2/  by Tyge Løvset <Tyge.Lovset@cmr.no>
+	Another C++ I/O streams interface
+
+contrib/untgz/  by "Pedro A. Aranda Guti\irrez" <paag@tid.es>
+	A very simple tar.gz extractor using zlib
+
+contrib/visual-basic.txt by Carlos Rios <c_rios@sonda.cl>
+        How to use compress(), uncompress() and the gz* functions from VB.

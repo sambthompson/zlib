@@ -1,6 +1,22 @@
 
 		ChangeLog file for zlib
 
+Changes in 1.0.7 (20 Jan 1998)
+- fix gzseek which was broken in write mode
+- return error for gzseek to negative absolute position
+- fix configure for Linux (Chun-Chung Chen)
+- increase stack space for MSC (Tim Wegner)
+- get_crc_table and inflateSyncPoint are EXPORTed (Gilles Vollant)
+- define EXPORTVA for gzprintf (Gilles Vollant)
+- added man page zlib.3 (Rick Rodgers)
+- for contrib/untgz, fix makedir() and improve Makefile
+
+- check gzseek in write mode in example.c
+- allocate extra buffer for seeks only if gzseek is actually called
+- avoid signed/unsigned comparisons (Tim Wegner, Gilles Vollant)
+- add inflateSyncPoint in zconf.h
+- fix list of exported functions in nt/zlib.dnt and mdsos/zlib.def
+
 Changes in 1.0.6 (19 Jan 1998)
 - add functions gzprintf, gzputc, gzgetc, gztell, gzeof, gzseek, gzrewind and
   gzsetparams (thanks to Roland Giersig and Kevin Ruland for some of this code)
@@ -19,6 +35,7 @@ Changes in 1.0.6 (19 Jan 1998)
 - next_in and avail_in must be initialized before calling inflateInit or
   inflateInit2
 - add EXPORT in all exported functions (for Windows DLL)
+- added Makefile.nt (thanks to Stephen Williams)
 - added the unsupported "contrib" directory:
    contrib/asm386/ by Gilles Vollant <info@winimage.com>
 	386 asm code replacing longest_match().
@@ -26,6 +43,8 @@ Changes in 1.0.6 (19 Jan 1998)
         A C++ I/O streams interface to the zlib gz* functions
    contrib/iostream2/  by Tyge Løvset <Tyge.Lovset@cmr.no>
 	Another C++ I/O streams interface
+   contrib/untgz/  by "Pedro A. Aranda Guti\irrez" <paag@tid.es>
+	A very simple tar.gz file extractor using zlib
    contrib/visual-basic.txt by Carlos Rios <c_rios@sonda.cl>
         How to use compress(), uncompress() and the gz* functions from VB.
 - pass params -f (filtered data), -h (huffman only), -1 to -9 (compression

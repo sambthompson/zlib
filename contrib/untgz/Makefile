@@ -1,9 +1,14 @@
+CC=cc
+CFLAGS=-g
 
-untgz: untgz.o  libz.a
-	cc -o untgz  untgz.o libz.a
+untgz: untgz.o  ../../libz.a
+	$(CC) $(CFLAGS) -o untgz  untgz.o -L../.. -lz
 
-untgz.o: untgz.c zlib.h
-	cc -O -c untgz.c
+untgz.o: untgz.c ../../zlib.h
+	$(CC) $(CFLAGS) -c -I../.. untgz.c
+
+../../libz.a:
+	cd ../..; make
 
 clean:
-	rm -f untgz untgz.o
+	rm -f untgz untgz.o *~

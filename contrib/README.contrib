@@ -13,3 +13,9 @@ iostream/   by Kevin Ruland <kevin@rodin.wustl.edu>
 
 iostream2/  by Tyge Løvset <Tyge.Lovset@cmr.no>
 	Another C++ I/O streams interface
+
+untgz/      by "Pedro A. Aranda Guti\irrez" <paag@tid.es>
+	A very simple tar.gz file extractor using zlib
+
+visual-basic.txt by Carlos Rios <c_rios@sonda.cl>
+        How to use compress(), uncompress() and the gz* functions from VB.

@@ -129,7 +129,6 @@ local gzFile gz_open (path, mode, fd)
         }
     } else {
         s->stream.next_in  = s->inbuf = (Byte*)ALLOC(Z_BUFSIZE);
-        s->outbuf = (Byte*)ALLOC(Z_BUFSIZE); /* for seeking */
 
         err = inflateInit2(&(s->stream), -MAX_WBITS);
         /* windowBits is passed < 0 to tell that there is no zlib header */
@@ -208,7 +207,7 @@ int EXPORT gzsetparams (file, level, strategy)
 	s->stream.avail_out = Z_BUFSIZE;
     }
 
-    return deflateParams( &(s->stream), level, strategy );
+    return deflateParams (&(s->stream), level, strategy);
 }
 
 /* ===========================================================================
@@ -474,7 +473,7 @@ int EXPORT gzwrite (file, buf, len)
 #ifdef STDC
 #include <stdarg.h>
 
-int EXPORT gzprintf (gzFile file, const char *format, /* args */ ...)
+int EXPORTVA gzprintf (gzFile file, const char *format, /* args */ ...)
 {
     char buf[Z_BUFSIZE];
     va_list va;
@@ -493,8 +492,8 @@ int EXPORT gzprintf (gzFile file, const char *format, /* args */ ...)
 }
 #else /* not ANSI C */
 
-int EXPORT gzprintf (file, format, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,
-	             a11, a12, a13, a14, a15, a16, a17, a18, a19, a20)
+int EXPORTVA gzprintf (file, format, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,
+	               a11, a12, a13, a14, a15, a16, a17, a18, a19, a20)
     gzFile file;
     const char *format;
     int a1, a2, a3, a4, a5, a6, a7, a8, a9, a10,
@@ -615,14 +614,17 @@ z_off_t EXPORT gzseek (file, offset, whence)
 	if (offset < 0) return -1L;
 
 	/* At this point, offset is the number of zero bytes to write. */
-	zmemzero(s->outbuf, Z_BUFSIZE);
+	if (s->inbuf == Z_NULL) {
+	    s->inbuf = (Byte*)ALLOC(Z_BUFSIZE); /* for seeking */
+	    zmemzero(s->inbuf, Z_BUFSIZE);
+	}
 	while (offset > 0)  {
 	    uInt size = Z_BUFSIZE;
-	    if (size > offset) size = offset;
-	    size = gzwrite(file, s->outbuf, size);
+	    if (offset < Z_BUFSIZE) size = (uInt)offset;
+
+	    size = gzwrite(file, s->inbuf, size);
 	    if (size == 0) return -1L;
 
-	    s->stream.total_in += size;
 	    offset -= size;
 	}
 	return s->stream.total_in;
@@ -636,6 +638,8 @@ z_off_t EXPORT gzseek (file, offset, whence)
     if (whence == SEEK_CUR) {
 	offset += s->stream.total_out;
     }
+    if (offset < 0) return -1L;
+
     if (s->transparent) {
 	/* map to fseek */
 	s->stream.avail_in = 0;
@@ -645,16 +649,20 @@ z_off_t EXPORT gzseek (file, offset, whence)
     }
 
     /* For a negative seek, rewind and use positive seek */
-    if (offset < s->stream.total_out) {
-	(void)gzrewind(file);
-    } else {
+    if ((uLong)offset >= s->stream.total_out) {
 	offset -= s->stream.total_out;
+    } else if (gzrewind(file) < 0) {
+	return -1L;
     }
     /* offset is now the number of bytes to skip. */
 
+    if (offset != 0 && s->outbuf == Z_NULL) {
+	s->outbuf = (Byte*)ALLOC(Z_BUFSIZE);
+    }
     while (offset > 0)  {
 	int size = Z_BUFSIZE;
-	if (size > offset) size = offset;
+	if (offset < Z_BUFSIZE) size = (int)offset;
+
 	size = gzread(file, s->outbuf, (uInt)size);
 	if (size <= 0) return -1L;
 	offset -= size;

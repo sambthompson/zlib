@@ -1,5 +1,5 @@
 /* zlib.h -- interface of the 'zlib' general purpose compression library
-  version 1.0.6, Jan 19th, 1998
+  version 1.0.7, Jan 20th, 1998
 
   Copyright (C) 1995-1998 Jean-loup Gailly and Mark Adler
 
@@ -37,25 +37,23 @@ extern "C" {
 
 #include "zconf.h"
 
-#define ZLIB_VERSION "1.0.6"
+#define ZLIB_VERSION "1.0.7"
 
 /* 
      The 'zlib' compression library provides in-memory compression and
   decompression functions, including integrity checks of the uncompressed
   data.  This version of the library supports only one compression method
-  (deflation) but other algorithms may be added later and will have the same
+  (deflation) but other algorithms will be added later and will have the same
   stream interface.
-
-     For compression the application must provide the output buffer and
-  may optionally provide the input buffer for optimization. For decompression,
-  the application must provide the input buffer and may optionally provide
-  the output buffer for optimization.
 
      Compression can be done in a single step if the buffers are large
   enough (for example if an input file is mmap'ed), or can be done by
   repeated calls of the compression function.  In the latter case, the
   application must provide more input and/or consume the output
   (providing more output space) before each call.
+
+     The library also supports reading and writing files in gzip (.gz) format
+  with an interface similar to that of stdio.
 
      The library does not install any signal handler. The decoder checks
   the consistency of the compressed data, so the library should never
@@ -689,7 +687,7 @@ extern int EXPORT    gzwrite OF((gzFile file, const voidp buf, unsigned len));
    (0 in case of error).
 */
 
-extern int EXPORT    gzprintf OF((gzFile file, const char *format, ...));
+extern int EXPORTVA   gzprintf OF((gzFile file, const char *format, ...));
 /*
      Converts, formats, and writes the args to the compressed file under
    control of the format string, as in fprintf. gzprintf returns the number of

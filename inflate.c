@@ -354,7 +354,7 @@ z_streamp z;
  * decompressing, PPP checks that at the end of input packet, inflate is
  * waiting for these length bytes.
  */
-int inflateSyncPoint(z)
+int EXPORT inflateSyncPoint(z)
 z_streamp z;
 {
   if (z == Z_NULL || z->state == Z_NULL || z->state->blocks == Z_NULL)

@@ -8,7 +8,7 @@ SUBSYSTEM	WINDOWS
 
 STUB		'WINSTUB.EXE'
 
-VERSION		1.06
+VERSION		1.07
 
 CODE		 EXECUTE READ
 
@@ -51,4 +51,7 @@ EXPORTS
     gzrewind                       @32
     gztell                         @33
     gzeof                          @34
-    gzparams                       @35
+    gzsetparams                    @35
+    zError                         @36
+    inflateSyncPoint               @37
+    get_crc_table                  @38

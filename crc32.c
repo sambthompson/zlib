@@ -124,7 +124,7 @@ local uLongf crc_table[256] = {
 /* =========================================================================
  * This function can be used by asm versions of crc32()
  */
-uLongf *get_crc_table()
+uLongf * EXPORT get_crc_table()
 {
 #ifdef DYNAMIC_CRC_TABLE
   if (crc_table_empty) make_crc_table();

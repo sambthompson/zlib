@@ -93,11 +93,10 @@ void test_gzio(out, in, uncompr, uncomprLen)
         fprintf(stderr, "gzopen error\n");
         exit(1);
     }
-
     if (gzprintf(file, "%s, %s!", "hello", "hello") != len-1) {
         fprintf(stderr, "gzprintf err: %s\n", gzerror(file, &err));
     }
-    gzputc(file, '\0');
+    gzseek(file, 1L, SEEK_CUR); /* add one zero byte */
     gzclose(file);
 
     file = gzopen(in, "rb");

@@ -27,6 +27,7 @@
 #  define inflateInit2_	z_inflateInit2_
 #  define inflateSetDictionary z_inflateSetDictionary
 #  define inflateSync	z_inflateSync
+#  define inflateSyncPoint z_inflateSyncPoint
 #  define inflateReset	z_inflateReset
 #  define compress	z_compress
 #  define uncompress	z_uncompress
@@ -201,11 +202,18 @@ typedef uLong FAR uLongf;
 #  undef FAR
 #  include <windows.h>
 #  define EXPORT  WINAPI
+#  ifdef WIN32
+#    define EXPORTVA  WINAPIV
+#  else
+#    define EXPORTVA  FAR _cdecl _export
+#  endif
 #else
 #   if defined (__BORLANDC__) && defined (_Windows) && defined (__DLL__)
 #       define EXPORT _export
+#       define EXPORTVA _export
 #   else
 #       define EXPORT
+#       define EXPORTVA
 #   endif
 #endif
 

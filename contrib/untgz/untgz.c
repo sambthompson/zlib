@@ -199,8 +199,16 @@ int makedir (char *newdir)
 {
   char *buffer = strdup(newdir);
   char *p;
-
-  if (mkdir(newdir, 0775) == 0)
+  int  len = strlen(buffer);
+  
+  if (len <= 0) {
+    free(buffer);
+    return 0;
+  }
+  if (buffer[len-1] == '/') {
+    buffer[len-1] = '\0';
+  }
+  if (mkdir(buffer, 0775) == 0)
     {
       free(buffer);
       return 1;
@@ -213,17 +221,19 @@ int makedir (char *newdir)
       
       while(*p && *p != '\\' && *p != '/')
 	p++;
-      if (*p == 0)
-	break;
       hold = *p;
       *p = 0;
       if ((mkdir(buffer, 0775) == -1) && (errno == ENOENT))
 	{
 	  fprintf(stderr,"%s: couldn't create directory %s\n",prog,buffer);
+	  free(buffer);
 	  return 0;
 	}
+      if (hold == 0)
+	break;
       *p++ = hold;
     }
+  free(buffer);
   return 1;
 }
 
