@@ -1,4 +1,4 @@
-zlib 1.0.5 is a general purpose data compression library.  All the code
+zlib 1.0.6 is a general purpose data compression library.  All the code
 is reentrant (thread safe).  The data format used by the zlib library
 is described by RFCs (Request for Comments) 1950 to 1952 in the files 
 ftp://ds.internic.net/rfc/rfc1950.txt (zlib format), rfc1951.txt (deflate
@@ -19,27 +19,72 @@ makefiles such as Makefile.msc; for VMS, use Make_vms.com or descrip.mms.
 Questions about zlib should be sent to <zlib@quest.jpl.nasa.gov> or,
 if this fails, to the addresses given below in the Copyright section.
 The zlib home page is http://www.cdrom.com/pub/infozip/zlib/
+The official zlib ftp site is ftp://ftp.uu.net/pub/archiving/zip/zlib/
+Mark Nelson wrote an article about zlib for the Jan. 1997 issue of 
+Dr. Dobb's Journal; a copy of the article is available in
+http://web2.airmail.net/markn/articles/zlibtool/zlibtool.htm
 
-The changes made in version 1.0.5 are documented in the file ChangeLog.
+The changes made in version 1.0.6 are documented in the file ChangeLog.
 The main changes since 1.0.4 are:
 
-- Fix inflate to terminate gracefully when fed corrupted or invalid data
-- Use const for rommable constants in inflate
+- add functions gzprintf, gzputc, gzgetc, gztell, gzeof, gzseek, gzrewind and
+  gzsetparams (thanks to Roland Giersig and Kevin Ruland for some of this code)
+- Fix a deflate bug occuring only with compression level 0 (thanks to
+  Andy Buckler for finding this one).
+- In minigzip, pass transparently also the first byte for .Z files.
+- return Z_BUF_ERROR instead of Z_OK if output buffer full in uncompress()
+- check Z_FINISH in inflate (thanks to Marc Schluper)
+- Implement deflateCopy (thanks to Adam Costello)
+- make static libraries by default in configure, add --shared option.
+- move MSDOS or Windows specific files to directory msdos
+- suppress the notion of partial flush to simplify the interface
+  (but the symbol Z_PARTIAL_FLUSH is kept for compatibility with 1.0.4)
+- suppress history buffer provided by application to simplify the interface
+  (this feature was not implemented anyway in 1.0.4)
+- next_in and avail_in must be initialized before calling inflateInit or
+  inflateInit2
+- add EXPORT in all exported functions (for Windows DLL)
+- added the unsupported "contrib" directory:
+   contrib/asm386/ by Gilles Vollant <info@winimage.com>
+	386 asm code replacing longest_match().
+   contrib/iostream/ by Kevin Ruland <kevin@rodin.wustl.edu>
+        A C++ I/O streams interface to the zlib gz* functions
+   contrib/iostream2/  by Tyge Løvset <Tyge.Lovset@cmr.no>
+	Another C++ I/O streams interface
+   contrib/untgz/  by "Pedro A. Aranda Guti\irrez" <paag@tid.es>
+   contrib/visual-basic.txt by Carlos Rios <c_rios@sonda.cl>
+        How to use compress(), uncompress() and the gz* functions from VB.
+- pass params -f (filtered data), -h (huffman only), -1 to -9 (compression
+  level) in minigzip (thanks to Tom Lane)
 
+
+A Java implementation of zlib is available in the Java Development Kit 1.1
+http://www.javasoft.com/products/JDK/1.1/docs/api/Package-java.util.zip.html
+See the zlib home page http://www.cdrom.com/pub/infozip/zlib/ for details.
 
 A Perl interface to zlib written by Paul Marquess <pmarquess@bfsec.bt.co.uk>
 is in the CPAN (Comprehensive Perl Archive Network) sites, such as:
 ftp://ftp.cis.ufl.edu/pub/perl/CPAN/modules/by-module/Compress/Compress-Zlib*
 
+A Python interface to zlib written by A.M. Kuchling <amk@magnet.com>
+is available from the Python Software Association sites, such as:
+ftp://ftp.python.org/pub/python/contrib/Encoding/zlib*.tar.gz
 
 Notes for some targets:
 
-- For Turbo C the small model is supported only with reduced performance to
-  avoid any far allocation; it was tested with -DMAX_WBITS=11 -DMAX_MEM_LEVEL=3
+- To build a Windows DLL version, include in a DLL project zlib.def, zlib.rc
+  and all .c files except example.c and minigzip.c; compile with -DZLIB_DLL
+  The zlib DLL support was initially done by Alessandro Iacopetti and is
+  now maintained by Gilles Vollant <info@winimage.com>. Check the zlib DLL
+  home page at http://www.winimage.com/zLibDll
 
-- For 64-bit Iris, deflate.c must be compiled without any optimization.
+  From Visual Basic, you can call the DLL functions which do not take
+  a structure as argument: compress, uncompress and all gz* functions.
+  I don't know how to handle structures in Visual Basic, sorry.
+
+- For 64-bit Irix, deflate.c must be compiled without any optimization.
   With -O, one libpng test fails. The test works in 32 bit mode (with
-  the -32 compiler flag). The compiler bug has been reported to SGI.
+  the -n32 compiler flag). The compiler bug has been reported to SGI.
 
 - zlib doesn't work with gcc 2.6.3 on a DEC 3000/300LX under OSF/1 2.1   
   it works when compiled with cc.
@@ -47,13 +92,10 @@ Notes for some targets:
 - zlib doesn't work on HP-UX 9.05 with one cc compiler (the one not
   accepting the -O option). It works with the other cc compiler.
 
-- To build a Windows DLL version, include in a DLL project zlib.def, zlib.rc
-  and all .c files except example.c and minigzip.c; compile with -DZLIB_DLL
-  For help on building a zlib DLL, contact Alessandro Iacopetti
-  <iaco@email.alessandria.alpcom.it>  http://lisa.unial.it/iaco ,
-  or contact Brad Clarke <bclarke@cyberus.ca>.
-
 - gzdopen is not supported on RISCOS
+
+- For Turbo C the small model is supported only with reduced performance to
+  avoid any far allocation; it was tested with -DMAX_WBITS=11 -DMAX_MEM_LEVEL=3
 
 
 Acknowledgments:
@@ -84,7 +126,7 @@ Copyright notice:
   3. This notice may not be removed or altered from any source distribution.
 
   Jean-loup Gailly        Mark Adler
-  gzip@prep.ai.mit.edu    madler@alumni.caltech.edu
+  jloup@gzip.org          madler@alumni.caltech.edu
 
 If you use the zlib library in a product, we would appreciate *not*
 receiving lengthy legal documents to sign. The sources are provided
